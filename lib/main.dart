@@ -28,10 +28,20 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF202125)),
+        colorScheme: ColorScheme(
+          brightness: Brightness.dark, // or Brightness.light
+          primary: Colors.white, // Your main color
+          onPrimary: Color(0xFF202125), // Color to contrast with primary
+          secondary: Color(0xFF3399FE), // Secondary color
+          onSecondary: Color(0xFF202125), // Color to contrast with secondary
+          error: Colors.red, // Error color
+          onError: Colors.white, // Color to contrast with error
+          surface: Color(0xFF303030), // Surface color (also backgound)
+          onSurface: Colors.white, // Color to contrast with surface
+        ),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Arti Homepage'),
+      home: const MyHomePage(title: 'Arti'),
     );
   }
 }
