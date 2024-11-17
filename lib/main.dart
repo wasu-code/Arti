@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:html/parser.dart';
 
 void main() {
   runApp(const MyApp());
@@ -7,37 +9,21 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Arti',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme(
-          brightness: Brightness.dark, // or Brightness.light
-          primary: Colors.white, // Your main color
-          onPrimary: Color(0xFF202125), // Color to contrast with primary
-          secondary: Color(0xFF3399FE), // Secondary color
-          onSecondary: Color(0xFF202125), // Color to contrast with secondary
-          error: Colors.red, // Error color
-          onError: Colors.white, // Color to contrast with error
-          surface: Color(0xFF303030), // Surface color (also backgound)
-          onSurface: Colors.white, // Color to contrast with surface
+          brightness: Brightness.dark,
+          primary: Colors.white,
+          onPrimary: Color(0xFF202125),
+          secondary: Color(0xFF3399FE),
+          onSecondary: Color(0xFF202125),
+          error: Colors.red,
+          onError: Colors.white,
+          surface: Color(0xFF303030),
+          onSurface: Colors.white,
         ),
         useMaterial3: true,
       ),
@@ -49,15 +35,6 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -65,71 +42,129 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  final TextEditingController _controller = TextEditingController();
+  bool _isLoading = false;
 
-  void _incrementCounter() {
+  // List to store the content widgets (text and images)
+  List<Widget> _contentWidgets = [];
+
+  // Function to fetch the website content
+  Future<void> _fetchWebsite(String url) async {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _isLoading = true;
+      _contentWidgets = []; // Clear previous content
     });
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        // Parse the HTML content of the website
+        var document = parse(response.body);
+
+        // Extract all paragraphs and images
+        List<Widget> contentWidgets = [];
+
+        var paragraphs = document.getElementsByTagName('p');
+        for (var paragraph in paragraphs) {
+          contentWidgets.add(Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              paragraph.text,
+              style: TextStyle(fontSize: 16),
+            ),
+          ));
+        }
+
+        var images = document.getElementsByTagName('img');
+        for (var img in images) {
+          var src = img.attributes['src'];
+          if (src != null) {
+            // Resolve relative URLs to absolute URLs
+            var imageUrl = Uri.parse(url).resolve(src).toString();
+
+            contentWidgets.add(Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Image.network(
+                imageUrl,
+                loadingBuilder: (BuildContext context, Widget child,
+                    ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              (loadingProgress.expectedTotalBytes ?? 1)
+                          : null,
+                    ),
+                  );
+                },
+              ),
+            ));
+          }
+        }
+
+        setState(() {
+          _contentWidgets = contentWidgets;
+        });
+      } else {
+        setState(() {
+          _contentWidgets = [
+            Text("Failed to load website. ${response.statusCode}")
+          ];
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _contentWidgets = [Text("Error fetching website.")];
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        actions: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SizedBox(
+              width: 200,
+              child: TextField(
+                controller: _controller,
+                decoration: const InputDecoration(
+                  hintText: 'Search URL',
+                  border: InputBorder.none,
+                ),
+                onSubmitted: (value) {
+                  _fetchWebsite(value);
+                },
+              ),
+            ),
+          ),
+        ],
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
+        child: _isLoading
+            ? const CircularProgressIndicator()
+            : SingleChildScrollView(
+                child: Column(
+                  children: _contentWidgets,
+                ),
+              ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        onPressed: () {
+          _fetchWebsite(_controller.text);
+        },
+        tooltip: 'Fetch Website',
+        child: const Icon(Icons.search),
+      ),
     );
   }
 }
