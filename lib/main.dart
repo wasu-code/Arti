@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
           initialRoute: '/',
           routes: {
             '/': (context) => HomeScreen(),
-            '/reader': (context) => PlaceholderScreen(title: 'Reader Screen'),
+            // '/reader': (context) => PlaceholderScreen(title: 'Reader Screen'),
             '/fetch': (context) => PlaceholderScreen(title: 'Fetch Screen'),
             '/file_viewer': (context) => FileViewerScreen(),
           },

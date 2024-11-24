@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/html_files_provider.dart';
 import '../models/html_file_metadata.dart';
+import 'reader_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -32,7 +33,14 @@ class HomeScreen extends StatelessWidget {
               return GestureDetector(
                 onTap: () {
                   // Open reader screen with file
-                  Navigator.pushNamed(context, '/reader');
+                  // Navigator.pushNamed(context, '/reader');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          ReaderScreen(htmlFilePath: file.filePath),
+                    ),
+                  );
                 },
                 child: Card(
                   elevation: 5,

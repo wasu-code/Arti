@@ -46,10 +46,19 @@ class StorageService {
 
   // Load file content
   Future<String> loadHtmlFile(String filePath) async {
-    final file = File(filePath);
+    File file;
+    if (filePath.startsWith("/storage")) {
+      //is absolute path
+      file = File(filePath);
+    } else {
+      //is relative path
+      final dir = await getAppDirectory();
+      file = File(join(dir.path, filePath));
+    }
     if (await file.exists()) {
       return await file.readAsString();
     }
-    return '';
+
+    return 'no file found for path $filePath';
   }
 }
