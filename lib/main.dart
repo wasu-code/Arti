@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'screens/file_viewer_screen.dart';
 import 'screens/home_screen.dart';
 import 'providers/html_files_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await requestStoragePermission();
   runApp(MyApp());
 }
 
@@ -37,6 +41,7 @@ class MyApp extends StatelessWidget {
             '/': (context) => HomeScreen(),
             '/reader': (context) => PlaceholderScreen(title: 'Reader Screen'),
             '/fetch': (context) => PlaceholderScreen(title: 'Fetch Screen'),
+            '/file_viewer': (context) => FileViewerScreen(),
           },
         ));
   }
@@ -57,6 +62,31 @@ class PlaceholderScreen extends StatelessWidget {
       appBar: AppBar(title: Text(title)),
       body: Center(child: Text('This is the $title.')),
     );
+  }
+}
+
+Future<void> requestStoragePermission() async {
+  if (await Permission.storage.isGranted &&
+      await Permission.manageExternalStorage.isGranted) {
+    print("Storage permission and manage storage permission already granted");
+    return;
+  }
+
+  final storagePerm = await Permission.storage.request();
+  final managePerm = await Permission.manageExternalStorage.request();
+
+  if (storagePerm.isGranted) {
+    print("Storage permission granted");
+  } else {
+    print("Storage permission denied");
+    throw Exception("Storage permission is required to access files.");
+  }
+
+  if (managePerm.isGranted) {
+    print("Storage permission granted");
+  } else {
+    print("Storage permission denied");
+    throw Exception("Storage permission is required to access files.");
   }
 }
 

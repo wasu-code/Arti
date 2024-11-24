@@ -28,6 +28,7 @@ class StorageService {
     final dir = await getAppDirectory();
     final metadataFile = File('${dir.path}/$metadataFileName');
     if (!metadataFile.existsSync()) {
+      print('No metadata file found');
       return [];
     }
     final jsonString = await metadataFile.readAsString();

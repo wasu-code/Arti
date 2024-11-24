@@ -9,8 +9,13 @@ class HtmlFilesProvider with ChangeNotifier {
   List<HtmlFileMetadata> get files => _files;
 
   Future<void> loadFiles() async {
-    _files = await _storageService.loadMetadata();
-    notifyListeners();
+    try {
+      _files = await _storageService.loadMetadata();
+      print("Loaded metadata: $_files");
+      notifyListeners();
+    } catch (e) {
+      print("Error loading metadata: $e");
+    }
   }
 
   //test (dummy data)
