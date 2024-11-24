@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'screens/home_screen.dart';
+import 'providers/html_files_provider.dart';
 
 void main() {
   runApp(MyApp());
@@ -11,29 +12,33 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Arti',
-      theme: ThemeData(
-        colorScheme: ColorScheme(
-          brightness: Brightness.dark,
-          primary: Colors.white,
-          onPrimary: Color(0xFF202125),
-          secondary: Color(0xFF3399FE),
-          onSecondary: Color(0xFF202125),
-          error: Colors.red,
-          onError: Colors.white,
-          surface: Color(0xFF303030),
-          onSurface: Colors.white,
-        ),
-        useMaterial3: true,
-      ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => HomeScreen(),
-        '/reader': (context) => PlaceholderScreen(title: 'Reader Screen'),
-        '/fetch': (context) => PlaceholderScreen(title: 'Fetch Screen'),
-      },
-    );
+    return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => HtmlFilesProvider()),
+        ],
+        child: MaterialApp(
+          title: 'Arti',
+          theme: ThemeData(
+            colorScheme: ColorScheme(
+              brightness: Brightness.dark,
+              primary: Colors.white,
+              onPrimary: Color(0xFF202125),
+              secondary: Color(0xFF3399FE),
+              onSecondary: Color(0xFF202125),
+              error: Colors.red,
+              onError: Colors.white,
+              surface: Color(0xFF303030),
+              onSurface: Colors.white,
+            ),
+            useMaterial3: true,
+          ),
+          initialRoute: '/',
+          routes: {
+            '/': (context) => HomeScreen(),
+            '/reader': (context) => PlaceholderScreen(title: 'Reader Screen'),
+            '/fetch': (context) => PlaceholderScreen(title: 'Fetch Screen'),
+          },
+        ));
   }
 }
 
