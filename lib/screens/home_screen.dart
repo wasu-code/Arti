@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/html_files_provider.dart';
@@ -25,7 +27,7 @@ class HomeScreen extends StatelessWidget {
               crossAxisCount: 2,
               mainAxisSpacing: 10.0,
               crossAxisSpacing: 10.0,
-              childAspectRatio: 3 / 2,
+              childAspectRatio: 2 / 3,
             ),
             itemCount: files.length,
             itemBuilder: (ctx, index) {
@@ -33,12 +35,12 @@ class HomeScreen extends StatelessWidget {
               return GestureDetector(
                 onTap: () {
                   // Open reader screen with file
-                  // Navigator.pushNamed(context, '/reader');
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          ReaderScreen(htmlFilePath: file.filePath),
+                      builder: (context) => ReaderScreen(
+                          htmlFilePath: file.filePath,
+                          articleTitle: file.title),
                     ),
                   );
                 },
@@ -47,17 +49,27 @@ class HomeScreen extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      SizedBox(height: 10),
+                      Image.file(
+                        File(
+                            "/storage/emulated/0/Arti${file.coverImagePath}"), // Use the imagePath to load the image
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover, // Adjust the image to fit the box
+                      ),
+                      Expanded(
+                        child: SizedBox(
+                          height:
+                              5, // This height will be ignored because of Expanded
+                        ),
+                      ),
                       Text(
                         file.title,
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        file.description,
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 14),
                       ),
+                      SizedBox(height: 10),
                     ],
                   ),
                 ),

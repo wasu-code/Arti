@@ -61,4 +61,11 @@ class StorageService {
 
     return 'no file found for path $filePath';
   }
+
+  Future<File> loadImage(String imagePath) async {
+    final directory = await getAppDirectory();
+    final imageFullPath =
+        join(directory.path, imagePath); // Create the full path
+    return File(imageFullPath);
+  }
 }

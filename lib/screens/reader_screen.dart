@@ -10,8 +10,10 @@ import '../services/storage_service.dart';
 
 class ReaderScreen extends StatelessWidget {
   final String htmlFilePath;
+  final String? articleTitle;
 
-  const ReaderScreen({super.key, required this.htmlFilePath});
+  const ReaderScreen(
+      {super.key, required this.htmlFilePath, this.articleTitle});
 
   @override
   Widget build(BuildContext context) {
@@ -21,21 +23,21 @@ class ReaderScreen extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('Reader'),
+              title: Text(articleTitle ?? "Reader"),
             ),
             body: Center(child: CircularProgressIndicator()),
           );
         } else if (snapshot.hasError) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('Reader'),
+              title: Text(articleTitle ?? "Reader"),
             ),
             body: Center(child: Text('Error loading file: ${snapshot.error}')),
           );
         } else {
           return Scaffold(
             appBar: AppBar(
-              title: Text('Reader'),
+              title: Text(articleTitle ?? "no_title"),
             ),
             body: SingleChildScrollView(
               padding: const EdgeInsets.all(8.0),
