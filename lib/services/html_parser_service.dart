@@ -21,7 +21,7 @@ Future<String> parseHtml(String htmlContent, String baseUrl) async {
 
   // Remove unnecessary elements like navbars, footers, and ads
   final elementsToRemove = mainContent.querySelectorAll(
-      'nav, footer, aside, .sidebar, .ad, [role="navigation"], [role="banner"], [role="complementary"]');
+      'nav, footer, aside, noscript, .sidebar, .ad, [role="navigation"], [role="banner"], [role="complementary"]');
   for (var element in elementsToRemove) {
     element.remove();
   }
