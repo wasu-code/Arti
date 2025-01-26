@@ -50,32 +50,31 @@ class HomeScreen extends StatelessWidget {
                     );
                   },
                   child: Card(
+                    clipBehavior: Clip.antiAlias,
                     elevation: 5,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SizedBox(height: 10),
-                        Image.file(
-                          File(
-                              "/storage/emulated/0/Arti${file.coverImagePath}"), // Use the imagePath to load the image
-                          width: 100,
-                          height: 100,
-                          fit: BoxFit.cover, // Adjust the image to fit the box
-                          errorBuilder: (BuildContext context, Object exception,
-                              StackTrace? stackTrace) {
-                            return Icon(
-                              Icons.broken_image,
-                              size: 100,
-                              color: Colors.grey,
-                            );
-                          },
-                        ),
                         Expanded(
                           child: SizedBox(
-                            height:
-                                5, // This height will be ignored because of Expanded
+                            width: double.infinity,
+                            child: Image.file(
+                              File(
+                                  "/storage/emulated/0/Arti${file.coverImagePath}"), // Use the imagePath to load the image
+                              fit: BoxFit
+                                  .cover, // Adjust the image to fit the box
+                              errorBuilder: (BuildContext context,
+                                  Object exception, StackTrace? stackTrace) {
+                                return Icon(
+                                  Icons.broken_image,
+                                  size: 100,
+                                  color: Colors.grey,
+                                );
+                              },
+                            ),
                           ),
                         ),
+                        SizedBox(height: 5),
                         Text(
                           file.title,
                           style: TextStyle(

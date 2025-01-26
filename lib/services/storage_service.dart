@@ -79,10 +79,11 @@ class StorageService {
     return 'no file found for path $filePath';
   }
 
-  Future<void> saveImage(Uint8List imageData, String filename) async {
+  Future<String> saveImage(Uint8List imageData, String filename) async {
     final dir = await getAppDirectory();
     final imageFile = File('${dir.path}/$filename');
     await imageFile.writeAsBytes(imageData);
+    return filename;
   }
 
   Future<File> loadImage(String imagePath) async {
