@@ -1,7 +1,6 @@
 import 'package:arti/screens/fetch_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'screens/file_viewer_screen.dart';
 import 'screens/home_screen.dart';
 import 'providers/html_files_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -40,9 +39,7 @@ class MyApp extends StatelessWidget {
           initialRoute: '/',
           routes: {
             '/': (context) => HomeScreen(),
-            // '/reader': (context) => PlaceholderScreen(title: 'Reader Screen'),
             '/fetch': (context) => FetchScreen(),
-            '/file_viewer': (context) => FileViewerScreen(),
           },
         ));
   }

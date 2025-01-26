@@ -1,7 +1,6 @@
 import 'package:arti/models/html_file_metadata.dart';
 import 'package:arti/services/fetch_service.dart';
 import 'package:html/parser.dart';
-import 'package:html/dom.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';

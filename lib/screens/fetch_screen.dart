@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import '../services/fetch_service.dart';
 import '../services/html_parser_service.dart';
 import '../services/storage_service.dart';
-import '../models/html_file_metadata.dart';
-import 'file_viewer_screen.dart';
 import 'package:uuid/uuid.dart';
 
 class FetchScreen extends StatefulWidget {
@@ -42,7 +40,6 @@ class _FetchScreenState extends State<FetchScreen> {
       // Update metadata.json
       await storageService.saveMetadata([fileMetadata]);
 
-      // Redirect to FileViewerScreen with metadata
       Navigator.push(
         context,
         MaterialPageRoute(

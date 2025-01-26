@@ -1,12 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_html_2/flutter_html_2.dart';
-
 import '../services/storage_service.dart';
-// import 'package:provider/provider.dart';
-// import '../providers/html_files_provider.dart';
-// import '../models/html_file_metadata.dart';
 
 class ReaderScreen extends StatelessWidget {
   final String htmlFilePath;
