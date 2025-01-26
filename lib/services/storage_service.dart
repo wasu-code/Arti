@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:path/path.dart'; // Helps with path manipulation
 import '../models/html_file_metadata.dart';
 import 'dart:convert';
@@ -16,11 +17,26 @@ class StorageService {
   }
 
   // Save metadata
-  Future<void> saveMetadata(List<HtmlFileMetadata> metadata) async {
+  Future<void> saveMetadata(List<HtmlFileMetadata> metadataList) async {
     final dir = await getAppDirectory();
     final metadataFile = File('${dir.path}/$metadataFileName');
-    final jsonString = jsonEncode(metadata.map((e) => e.toJson()).toList());
-    await metadataFile.writeAsString(jsonString);
+    List<HtmlFileMetadata> existingMetadata = [];
+
+    // Read existing metadata if the file exists
+    if (await metadataFile.exists()) {
+      final jsonString = await metadataFile.readAsString();
+      final jsonList = jsonDecode(jsonString) as List;
+      existingMetadata =
+          jsonList.map((json) => HtmlFileMetadata.fromJson(json)).toList();
+    }
+
+    // Add new metadata entries
+    existingMetadata.addAll(metadataList);
+
+    // Write the updated metadata back to the file
+    final updatedJsonString =
+        jsonEncode(existingMetadata.map((e) => e.toJson()).toList());
+    await metadataFile.writeAsString(updatedJsonString);
   }
 
   // Load metadata
@@ -41,7 +57,8 @@ class StorageService {
     final dir = await getAppDirectory();
     final file = File(join(dir.path, '$fileName.html'));
     await file.writeAsString(content);
-    return file.path;
+    // Return relative path
+    return '${fileName}.html';
   }
 
   // Load file content
@@ -60,6 +77,12 @@ class StorageService {
     }
 
     return 'no file found for path $filePath';
+  }
+
+  Future<void> saveImage(Uint8List imageData, String filename) async {
+    final dir = await getAppDirectory();
+    final imageFile = File('${dir.path}/$filename');
+    await imageFile.writeAsBytes(imageData);
   }
 
   Future<File> loadImage(String imagePath) async {
