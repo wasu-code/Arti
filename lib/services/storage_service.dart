@@ -39,6 +39,43 @@ class StorageService {
     await metadataFile.writeAsString(updatedJsonString);
   }
 
+  Future<void> removeFileAndMetadata(String filePath) async {
+    final dir = await getAppDirectory();
+    final file = File(join(dir.path, filePath));
+
+    // Remove the file
+    if (await file.exists()) {
+      await file.delete();
+    }
+
+    // Remove the metadata entry and cover image
+    final metadataFile = File('${dir.path}/$metadataFileName');
+    if (await metadataFile.exists()) {
+      final jsonString = await metadataFile.readAsString();
+      final jsonList = jsonDecode(jsonString) as List;
+      List<HtmlFileMetadata> metadataList =
+          jsonList.map((json) => HtmlFileMetadata.fromJson(json)).toList();
+
+      final metadata =
+          metadataList.firstWhere((metadata) => metadata.filePath == filePath);
+
+      final coverImagePath = metadata.coverImagePath;
+
+      final coverImageFile =
+          File(join(dir.path, coverImagePath.replaceFirst('/', '')));
+
+      if (await coverImageFile.exists()) {
+        await coverImageFile.delete();
+      }
+
+      metadataList.remove(metadata);
+
+      final updatedJsonString =
+          jsonEncode(metadataList.map((e) => e.toJson()).toList());
+      await metadataFile.writeAsString(updatedJsonString);
+    }
+  }
+
   // Load metadata
   Future<List<HtmlFileMetadata>> loadMetadata() async {
     final dir = await getAppDirectory();

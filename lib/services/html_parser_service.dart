@@ -1,12 +1,13 @@
 import 'package:arti/models/html_file_metadata.dart';
 import 'package:arti/services/fetch_service.dart';
+import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 import 'package:arti/services/storage_service.dart';
 
-final MIN_IMAGE_DIMENSION = 250;
+final MIN_IMAGE_DIMENSION = 100;
 
 Future<String> parseHtml(String htmlContent, String baseUrl) async {
   final document = parse(htmlContent);
@@ -20,11 +21,15 @@ Future<String> parseHtml(String htmlContent, String baseUrl) async {
   }
 
   // Remove unnecessary elements like navbars, footers, and ads
-  final elementsToRemove = mainContent.querySelectorAll(
-      'nav, footer, aside, noscript, .sidebar, .ad, [role="navigation"], [role="banner"], [role="complementary"]');
-  for (var element in elementsToRemove) {
-    element.remove();
-  }
+  mainContent
+      .querySelectorAll(
+          'script, style, noscript, nav, footer, aside, .sidebar, .ad, [role="navigation"], [role="banner"], [role="complementary"]')
+      .forEach((element) => element.remove());
+
+  //Remove inline styles
+  mainContent
+      .querySelectorAll('[style]')
+      .forEach((element) => element.attributes.remove('style'));
 
   // Process images
   for (var img in mainContent.getElementsByTagName('img')) {
@@ -52,10 +57,9 @@ Future<String> parseHtml(String htmlContent, String baseUrl) async {
     }
   }
 
-  // Remove scripts and styles
   mainContent
-      .querySelectorAll('script, style')
-      .forEach((element) => element.remove());
+      .querySelectorAll('img')
+      .forEach((element) => element.attributes['style'] = 'max-width: 100%;');
 
   return mainContent.outerHtml;
 }
@@ -113,7 +117,7 @@ Future<HtmlFileMetadata> parseMetadata(
       final resolvedImageUrl = Uri.parse(filePath).resolve(imageUrl).toString();
       final storage = StorageService();
       final uuid = Uuid();
-      final imageFileName = uuid.v4();
+      final imageFileName = '${uuid.v4()}.jpg';
       final coverImage = await fetchImage(resolvedImageUrl);
       imagePath = await storage.saveImage(coverImage, imageFileName);
     } catch (e) {
